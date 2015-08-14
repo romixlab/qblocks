@@ -11,15 +11,17 @@ class Block;
 class ApplicationData;
 class Application : public QApplication
 {
+    Q_OBJECT
 public:
     Application(int &argc, char **argv);
     ~Application();
 
     Block *loadBlock(const QString &name);
+    void loadBlocks(const QString &path);
 
-    void addObject(const QString &path, QObject *object);
-    QObject *object(const QString &path) const;
-    QList<QObject *> objects() const;
+    Q_INVOKABLE void addObject(const QString &path, QObject *object);
+    Q_INVOKABLE QObject *object(const QString &path) const;
+    Q_INVOKABLE QList<QObject *> objects() const;
 
     template <class T>
     T *findFirst()

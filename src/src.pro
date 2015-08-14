@@ -14,11 +14,14 @@ MOC_DIR = $$DESTDIR/moc
 HEADERS += \
     blocks_global.h \
     block.h \
-    blocksapplication.h
+    blocksapplication.h \
+    blockinfo.h \
+    blockinfo_p.h
 
 SOURCES += \
     block.cpp \
-    blocksapplication.cpp
+    blocksapplication.cpp \
+    blockinfo.cpp
 
 
 HEADERS_INSTALL = \

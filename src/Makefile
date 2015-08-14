@@ -33,7 +33,7 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = blocks0.0.0
-DISTDIR = /home/roman/Git/blocks/build/debug/obj/blocks0.0.0
+DISTDIR = /home/roman/Git/qblocks/build/debug/obj/blocks0.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1 -Wl,-rpath,/opt/Qt/5.5/gcc_64 -Wl,-rpath,/opt/Qt/5.5/gcc_64/lib -shared -Wl,-soname,libblocks.so.0
 LIBS          = $(SUBLIBS) -L/opt/Qt/5.5/gcc_64/lib -lQt5Quick -L/usr/lib64 -lQt5Widgets -lQt5Gui -lQt5Qml -lQt5Network -lQt5Core -lGL -lpthread 
@@ -49,15 +49,22 @@ OBJECTS_DIR   = ../build/debug/obj/
 ####### Files
 
 SOURCES       = block.cpp \
-		blocksapplication.cpp ../build/debug/moc/moc_block.cpp
+		blocksapplication.cpp \
+		blockinfo.cpp ../build/debug/moc/moc_block.cpp \
+		../build/debug/moc/moc_blocksapplication.cpp
 OBJECTS       = ../build/debug/obj/block.o \
 		../build/debug/obj/blocksapplication.o \
-		../build/debug/obj/moc_block.o
+		../build/debug/obj/blockinfo.o \
+		../build/debug/obj/moc_block.o \
+		../build/debug/obj/moc_blocksapplication.o
 DIST          = ../.qmake.conf \
 		src.pro blocks_global.h \
 		block.h \
-		blocksapplication.h block.cpp \
-		blocksapplication.cpp
+		blocksapplication.h \
+		blockinfo.h \
+		blockinfo_p.h block.cpp \
+		blocksapplication.cpp \
+		blockinfo.cpp
 QMAKE_TARGET  = blocks
 DESTDIR       = ../build/debug/#avoid trailing-slash linebreak
 TARGET        = libblocks.so.0.0.0
@@ -407,8 +414,8 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents blocks_global.h block.h blocksapplication.h $(DISTDIR)/
-	$(COPY_FILE) --parents block.cpp blocksapplication.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents blocks_global.h block.h blocksapplication.h blockinfo.h blockinfo_p.h $(DISTDIR)/
+	$(COPY_FILE) --parents block.cpp blocksapplication.cpp blockinfo.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -432,9 +439,9 @@ check: first
 
 compiler_rcc_make_all:
 compiler_rcc_clean:
-compiler_moc_header_make_all: ../build/debug/moc/moc_block.cpp
+compiler_moc_header_make_all: ../build/debug/moc/moc_block.cpp ../build/debug/moc/moc_blocksapplication.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) ../build/debug/moc/moc_block.cpp
+	-$(DEL_FILE) ../build/debug/moc/moc_block.cpp ../build/debug/moc/moc_blocksapplication.cpp
 ../build/debug/moc/moc_block.cpp: blocks_global.h \
 		/opt/Qt/5.5/gcc_64/include/QtCore/qglobal.h \
 		/opt/Qt/5.5/gcc_64/include/QtCore/qconfig.h \
@@ -517,7 +524,118 @@ compiler_moc_header_clean:
 		/opt/Qt/5.5/gcc_64/include/QtQml/qqmlerror.h \
 		/opt/Qt/5.5/gcc_64/include/QtQml/qjsvalue.h \
 		block.h
-	/opt/Qt/5.5/gcc_64/bin/moc $(DEFINES) -I/opt/Qt/5.5/gcc_64/mkspecs/linux-g++ -I/home/roman/Git/blocks/src -I/opt/Qt/5.5/gcc_64/include -I/opt/Qt/5.5/gcc_64/include/QtQuick -I/opt/Qt/5.5/gcc_64/include/QtWidgets -I/opt/Qt/5.5/gcc_64/include/QtGui -I/opt/Qt/5.5/gcc_64/include/QtQml -I/opt/Qt/5.5/gcc_64/include/QtNetwork -I/opt/Qt/5.5/gcc_64/include/QtCore block.h -o ../build/debug/moc/moc_block.cpp
+	/opt/Qt/5.5/gcc_64/bin/moc $(DEFINES) -I/opt/Qt/5.5/gcc_64/mkspecs/linux-g++ -I/home/roman/Git/qblocks/src -I/opt/Qt/5.5/gcc_64/include -I/opt/Qt/5.5/gcc_64/include/QtQuick -I/opt/Qt/5.5/gcc_64/include/QtWidgets -I/opt/Qt/5.5/gcc_64/include/QtGui -I/opt/Qt/5.5/gcc_64/include/QtQml -I/opt/Qt/5.5/gcc_64/include/QtNetwork -I/opt/Qt/5.5/gcc_64/include/QtCore block.h -o ../build/debug/moc/moc_block.cpp
+
+../build/debug/moc/moc_blocksapplication.cpp: /opt/Qt/5.5/gcc_64/include/QtWidgets/QApplication \
+		/opt/Qt/5.5/gcc_64/include/QtWidgets/qapplication.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qcoreapplication.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qglobal.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qconfig.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qfeatures.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qsystemdetection.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qprocessordetection.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qcompilerdetection.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qtypeinfo.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qtypetraits.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qsysinfo.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qlogging.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qflags.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qatomic.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qbasicatomic.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qatomic_bootstrap.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qgenericatomic.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qatomic_cxx11.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qatomic_gcc.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qatomic_msvc.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qatomic_armv7.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qatomic_armv6.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qatomic_armv5.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qatomic_ia64.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qatomic_mips.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qatomic_x86.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qatomic_unix.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qglobalstatic.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qmutex.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qnumeric.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qstring.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qchar.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qbytearray.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qrefcount.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qnamespace.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qarraydata.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qstringbuilder.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qobject.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qobjectdefs.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qobjectdefs_impl.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qlist.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qalgorithms.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qiterator.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qbytearraylist.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qstringlist.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qregexp.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qstringmatcher.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qcoreevent.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qscopedpointer.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qmetatype.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qvarlengtharray.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qcontainerfwd.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qisenum.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qobject_impl.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qeventloop.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qwindowdefs.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qwindowdefs_win.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qpoint.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qsize.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qcursor.h \
+		/opt/Qt/5.5/gcc_64/include/QtWidgets/qdesktopwidget.h \
+		/opt/Qt/5.5/gcc_64/include/QtWidgets/qwidget.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qmargins.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qpaintdevice.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qrect.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qpalette.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qcolor.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qrgb.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qbrush.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qpair.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qvector.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qmatrix.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qpolygon.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qregion.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qdatastream.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qiodevice.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qline.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qtransform.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qpainterpath.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qimage.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qpixelformat.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qpixmap.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qsharedpointer.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qshareddata.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qhash.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qsharedpointer_impl.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qfont.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qfontmetrics.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qfontinfo.h \
+		/opt/Qt/5.5/gcc_64/include/QtWidgets/qsizepolicy.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qkeysequence.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qevent.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qvariant.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qmap.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qdebug.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qtextstream.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qlocale.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qset.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qcontiguouscache.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qurl.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qurlquery.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qfile.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qfiledevice.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qvector2d.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qtouchdevice.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qguiapplication.h \
+		/opt/Qt/5.5/gcc_64/include/QtGui/qinputmethod.h \
+		blocksapplication.h
+	/opt/Qt/5.5/gcc_64/bin/moc $(DEFINES) -I/opt/Qt/5.5/gcc_64/mkspecs/linux-g++ -I/home/roman/Git/qblocks/src -I/opt/Qt/5.5/gcc_64/include -I/opt/Qt/5.5/gcc_64/include/QtQuick -I/opt/Qt/5.5/gcc_64/include/QtWidgets -I/opt/Qt/5.5/gcc_64/include/QtGui -I/opt/Qt/5.5/gcc_64/include/QtQml -I/opt/Qt/5.5/gcc_64/include/QtNetwork -I/opt/Qt/5.5/gcc_64/include/QtCore blocksapplication.h -o ../build/debug/moc/moc_blocksapplication.cpp
 
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
@@ -796,18 +914,96 @@ compiler_clean: compiler_moc_header_clean
 		/opt/Qt/5.5/gcc_64/include/QtCore/QDebug
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../build/debug/obj/blocksapplication.o blocksapplication.cpp
 
+../build/debug/obj/blockinfo.o: blockinfo.cpp blockinfo.h \
+		blocks_global.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qglobal.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qconfig.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qfeatures.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qsystemdetection.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qprocessordetection.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qcompilerdetection.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qtypeinfo.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qtypetraits.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qsysinfo.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qlogging.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qflags.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qatomic.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qbasicatomic.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qatomic_bootstrap.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qgenericatomic.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qatomic_cxx11.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qatomic_gcc.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qatomic_msvc.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qatomic_armv7.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qatomic_armv6.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qatomic_armv5.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qatomic_ia64.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qatomic_mips.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qatomic_x86.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qatomic_unix.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qglobalstatic.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qmutex.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qnumeric.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/QString \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qstring.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qchar.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qbytearray.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qrefcount.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qnamespace.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qarraydata.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qstringbuilder.h \
+		blockinfo_p.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/QPluginLoader \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qpluginloader.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qlibrary.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qobject.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qobjectdefs.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qobjectdefs_impl.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qlist.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qalgorithms.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qiterator.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qbytearraylist.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qstringlist.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qregexp.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qstringmatcher.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qcoreevent.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qscopedpointer.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qmetatype.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qvarlengtharray.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qcontainerfwd.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qisenum.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qobject_impl.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qplugin.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qpointer.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qsharedpointer.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qshareddata.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qhash.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qpair.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qsharedpointer_impl.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qjsonobject.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qjsonvalue.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../build/debug/obj/blockinfo.o blockinfo.cpp
+
 ../build/debug/obj/moc_block.o: ../build/debug/moc/moc_block.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../build/debug/obj/moc_block.o ../build/debug/moc/moc_block.cpp
+
+../build/debug/obj/moc_blocksapplication.o: ../build/debug/moc/moc_blocksapplication.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../build/debug/obj/moc_blocksapplication.o ../build/debug/moc/moc_blocksapplication.cpp
 
 ####### Install
 
 install_header_files: first FORCE
 	@test -d $(INSTALL_ROOT)/usr/include/blocks || mkdir -p $(INSTALL_ROOT)/usr/include/blocks
-	-$(INSTALL_FILE) /home/roman/Git/blocks/src/blocks_global.h $(INSTALL_ROOT)/usr/include/blocks/
-	-$(INSTALL_FILE) /home/roman/Git/blocks/src/block.h $(INSTALL_ROOT)/usr/include/blocks/
-	-$(INSTALL_FILE) /home/roman/Git/blocks/src/blocksapplication.h $(INSTALL_ROOT)/usr/include/blocks/
-	-$(INSTALL_FILE) /home/roman/Git/blocks/src/Block $(INSTALL_ROOT)/usr/include/blocks/
-	-$(INSTALL_FILE) /home/roman/Git/blocks/src/Application $(INSTALL_ROOT)/usr/include/blocks/
+	-$(INSTALL_PROGRAM) /home/roman/Git/qblocks/src/blocks_global.h $(INSTALL_ROOT)/usr/include/blocks/
+	-strip $(INSTALL_ROOT)/usr/include/blocks/blocks_global.h
+	-$(INSTALL_PROGRAM) /home/roman/Git/qblocks/src/block.h $(INSTALL_ROOT)/usr/include/blocks/
+	-strip $(INSTALL_ROOT)/usr/include/blocks/block.h
+	-$(INSTALL_PROGRAM) /home/roman/Git/qblocks/src/blocksapplication.h $(INSTALL_ROOT)/usr/include/blocks/
+	-strip $(INSTALL_ROOT)/usr/include/blocks/blocksapplication.h
+	-$(INSTALL_PROGRAM) /home/roman/Git/qblocks/src/Block $(INSTALL_ROOT)/usr/include/blocks/
+	-strip $(INSTALL_ROOT)/usr/include/blocks/Block
+	-$(INSTALL_PROGRAM) /home/roman/Git/qblocks/src/Application $(INSTALL_ROOT)/usr/include/blocks/
+	-strip $(INSTALL_ROOT)/usr/include/blocks/Application
 
 uninstall_header_files: FORCE
 	-$(DEL_FILE) -r $(INSTALL_ROOT)/usr/include/blocks/Application

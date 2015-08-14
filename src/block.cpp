@@ -44,7 +44,7 @@ QObject *Block::loadQml(const QUrl &url)
     componentContext->setParent(qmlObject);
 
     if (qmlComponent->isReady()) {
-        qDebug() << "Success loading of qml component";
+        //qDebug() << "Success loading of qml component";
         qmlComponent->deleteLater();
     } else if (qmlComponent->isError()) {
         qDebug() << "Error loading qml component" << qmlComponent->errorString();
@@ -55,7 +55,7 @@ QObject *Block::loadQml(const QUrl &url)
                 this,         SLOT(componentStatusChanged(QQmlComponent::Status)));
     }
 
-    qDebug() << "loadQml" << qmlObject;
+    //qDebug() << "loadQml" << qmlObject;
     return qmlObject;
 }
 

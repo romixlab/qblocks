@@ -14,6 +14,8 @@ public:
     BlockInfoData() :
         state(BlockInfo::INVALID) { }
 
+    BlockInfo *q;
+
     bool setFileName(const QString &fileName);
     bool readMetaData(const QJsonObject &metaData);
     bool load();

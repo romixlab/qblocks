@@ -39,6 +39,7 @@ public:
     bool resolveDependencies(const QList<BlockInfo *> &blocks);
     QList<BlockInfo *> needs() const;
     State state() const;
+    BlockVersion version() const;
 
     friend class Application;
 private:

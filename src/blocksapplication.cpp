@@ -1,5 +1,6 @@
 #include "blocksapplication.h"
 #include "block.h"
+#include "block_p.h"
 #include "blockinfo.h"
 #include "blockinfo_p.h"
 
@@ -12,6 +13,7 @@ class Blocks::ApplicationData {
 public:
     void checkAndAppendToLoadQueue(BlockInfo *blockInfo);
     QList<BlockInfo *> load_queue;
+    QList<BlockInfo *> blocks;
 
     QHash<QString, QObject *> objects;
     QList<QObject *> objects_list;
@@ -23,6 +25,7 @@ using namespace Blocks;
 
 void ApplicationData::checkAndAppendToLoadQueue(BlockInfo *blockInfo)
 {
+    qDebug() << "Check and append to queue" << blockInfo->version().name();
     if (load_queue.contains(blockInfo))
         return;
     foreach (BlockInfo *need, blockInfo->needs()) {
@@ -37,7 +40,14 @@ void ApplicationData::checkAndAppendToLoadQueue(BlockInfo *blockInfo)
         qWarning() << "Not resolved ...";
         return;
     }
-    load_queue.push_back(blockInfo);
+    // search for last parent of this block in queue and insert after
+    int lastParentIdx = 0;
+    foreach (BlockInfo *parent, blockInfo->needs()) {
+        int idx = load_queue.indexOf(parent);
+        if (idx > lastParentIdx)
+            lastParentIdx = idx;
+    }
+    load_queue.insert(lastParentIdx + 1, blockInfo);
 }
 
 Application *Application::self = 0;
@@ -78,7 +88,6 @@ void Application::loadBlocks(const QString &path)
             pluginFiles.append(filePath);
     }
 
-    qDebug() << pluginFiles;
     QList<BlockInfo *> blocks;
     foreach (const QString &pluginFile, pluginFiles) {
         BlockInfo *blockInfo = new BlockInfo;
@@ -94,31 +103,29 @@ void Application::loadBlocks(const QString &path)
     foreach(BlockInfo *blockInfo, blocks)
         d->checkAndAppendToLoadQueue(blockInfo);
     foreach(BlockInfo *blockInfo, d->load_queue) {
-        blockInfo->d->load();
+        qDebug() << "Loading" << blockInfo->version().name();
+        if (blockInfo->d->load())
+            d->blocks.append(blockInfo);
     }
-}
-
-void Application::addObject(const QString &path, QObject *object)
-{
-    if (d->objects.contains(path)) {
-        qDebug() << "addObject: already has" << path;
-        d->objects_list.removeAll(d->objects[path]);
-    }
-    d->objects.insert(path, object);
-    d->objects_list.push_back(object);
-
-    //qDebug() << "Objects" << d->objects_list << d->objects;
+    d->load_queue.clear();
 }
 
 QObject *Application::object(const QString &path) const
 {
-    //qDebug() << "requested object, path:" << path << d->objects.value(path, 0);
-    return d->objects.value(path, 0);
+    foreach (BlockInfo *blockInfo, d->blocks) {
+        QObject *object = blockInfo->block()->object(path);
+        if (object)
+            return object;
+    }
+    return 0;
 }
 
 QList<QObject *> Application::objects() const
 {
-    return d->objects_list;
+    QList<QObject *> objects;
+    foreach (BlockInfo *blockInfo, d->blocks)
+        objects.append(blockInfo->block()->objects());
+    return objects;
 }
 
 void Application::setQmlEngine(QQmlEngine *engine)

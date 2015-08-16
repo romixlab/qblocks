@@ -1,17 +1,9 @@
 #include "block.h"
+#include "block_p.h"
 #include "blocksapplication.h"
 #include <QQmlContext>
 
 #include <QDebug>
-
-class Blocks::BlockData
-{
-public:
-    BlockData() :
-        context(0)
-    { }
-    QQmlContext *context;
-};
 
 using namespace Blocks;
 
@@ -27,6 +19,11 @@ Block::~Block()
 void Block::plugged(Blocks::Block *child)
 {
     Q_UNUSED(child)
+}
+
+BlockInfo *Block::info() const
+{
+    return d->info;
 }
 
 QObject *Block::loadQml(const QUrl &url)
@@ -57,6 +54,26 @@ QObject *Block::loadQml(const QUrl &url)
 
     //qDebug() << "loadQml" << qmlObject;
     return qmlObject;
+}
+
+void Block::addObject(const QString &name, QObject *object)
+{
+    if (d->objects.contains(name)) {
+        qDebug() << "Block::addObject: already added, replacing" << name;
+        d->objects_list.removeAll(d->objects[name]);
+    }
+    d->objects.insert(name, object);
+    d->objects_list.push_back(object);
+}
+
+QObject *Block::object(const QString &name) const
+{
+    return d->objects.value(name, 0);
+}
+
+QList<QObject *> Block::objects() const
+{
+    return d->objects_list;
 }
 
 void Block::componentstatusChanged(QQmlComponent::Status status)

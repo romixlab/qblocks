@@ -1,6 +1,7 @@
 #include "blockinfo.h"
 #include "blockinfo_p.h"
 #include "block.h"
+#include "block_p.h"
 #include <QJsonValue>
 #include <QJsonArray>
 #include <QDebug>
@@ -95,7 +96,11 @@ bool BlockInfoData::load()
         return false;
     }
 
+    block->d->info = q;
     block->plugin();
+    foreach (BlockInfo *dependency, dependency_blocks)
+        dependency->block()->plugged(block);
+
     state = BlockInfo::LOADED;
     return true;
 }
@@ -165,7 +170,9 @@ bool BlockVersion::operator <(const BlockVersion &other) const
 
 BlockInfo::BlockInfo() :
     d(new BlockInfoData)
-{ }
+{
+    d->q = this;
+}
 
 BlockInfo::~BlockInfo()
 {
@@ -214,6 +221,11 @@ QList<BlockInfo *> BlockInfo::needs() const
 BlockInfo::State BlockInfo::state() const
 {
     return d->state;
+}
+
+BlockVersion BlockInfo::version() const
+{
+    return d->provides;
 }
 
 

@@ -19,7 +19,6 @@ public:
     Block *loadBlock(const QString &name);
     void loadBlocks(const QString &path);
 
-    Q_INVOKABLE void addObject(const QString &path, QObject *object);
     Q_INVOKABLE QObject *object(const QString &path) const;
     Q_INVOKABLE QList<QObject *> objects() const;
 
@@ -32,6 +31,18 @@ public:
                 return casted;
         }
         return 0;
+    }
+
+    template <class T>
+    QList<T *> findAll()
+    {
+        QList<T *> objectsFound;
+        foreach (QObject *object, objects()) {
+            T *casted = qobject_cast<T *>(object);
+            if (casted)
+                objectsFound.append(casted);
+        }
+        return objectsFound;
     }
 
     void setQmlEngine(QQmlEngine *engine);

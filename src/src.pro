@@ -16,7 +16,8 @@ HEADERS += \
     block.h \
     blocksapplication.h \
     blockinfo.h \
-    blockinfo_p.h
+    blockinfo_p.h \
+    block_p.h
 
 SOURCES += \
     block.cpp \

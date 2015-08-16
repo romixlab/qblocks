@@ -62,7 +62,8 @@ DIST          = ../.qmake.conf \
 		block.h \
 		blocksapplication.h \
 		blockinfo.h \
-		blockinfo_p.h block.cpp \
+		blockinfo_p.h \
+		block_p.h block.cpp \
 		blocksapplication.cpp \
 		blockinfo.cpp
 QMAKE_TARGET  = blocks
@@ -414,7 +415,7 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents blocks_global.h block.h blocksapplication.h blockinfo.h blockinfo_p.h $(DISTDIR)/
+	$(COPY_FILE) --parents blocks_global.h block.h blocksapplication.h blockinfo.h blockinfo_p.h block_p.h $(DISTDIR)/
 	$(COPY_FILE) --parents block.cpp blocksapplication.cpp blockinfo.cpp $(DISTDIR)/
 
 
@@ -904,6 +905,10 @@ compiler_clean: compiler_moc_header_clean
 		/opt/Qt/5.5/gcc_64/include/QtCore/qmetaobject.h \
 		/opt/Qt/5.5/gcc_64/include/QtQml/qqmlerror.h \
 		/opt/Qt/5.5/gcc_64/include/QtQml/qjsvalue.h \
+		block_p.h \
+		blockinfo.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/QString \
+		blockinfo_p.h \
 		/opt/Qt/5.5/gcc_64/include/QtCore/QPluginLoader \
 		/opt/Qt/5.5/gcc_64/include/QtCore/qpluginloader.h \
 		/opt/Qt/5.5/gcc_64/include/QtCore/qlibrary.h \
@@ -911,6 +916,10 @@ compiler_clean: compiler_moc_header_clean
 		/opt/Qt/5.5/gcc_64/include/QtCore/qpointer.h \
 		/opt/Qt/5.5/gcc_64/include/QtCore/qjsonobject.h \
 		/opt/Qt/5.5/gcc_64/include/QtCore/qjsonvalue.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/QJsonObject \
+		/opt/Qt/5.5/gcc_64/include/QtCore/QDir \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qdir.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qfileinfo.h \
 		/opt/Qt/5.5/gcc_64/include/QtCore/QDebug
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../build/debug/obj/blocksapplication.o blocksapplication.cpp
 
@@ -981,7 +990,38 @@ compiler_clean: compiler_moc_header_clean
 		/opt/Qt/5.5/gcc_64/include/QtCore/qpair.h \
 		/opt/Qt/5.5/gcc_64/include/QtCore/qsharedpointer_impl.h \
 		/opt/Qt/5.5/gcc_64/include/QtCore/qjsonobject.h \
-		/opt/Qt/5.5/gcc_64/include/QtCore/qjsonvalue.h
+		/opt/Qt/5.5/gcc_64/include/QtCore/qjsonvalue.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/QJsonObject \
+		block.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/QObject \
+		/opt/Qt/5.5/gcc_64/include/QtCore/QUrl \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qurl.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qurlquery.h \
+		/opt/Qt/5.5/gcc_64/include/QtQml/QQmlComponent \
+		/opt/Qt/5.5/gcc_64/include/QtQml/qqmlcomponent.h \
+		/opt/Qt/5.5/gcc_64/include/QtQml/qqml.h \
+		/opt/Qt/5.5/gcc_64/include/QtQml/qqmlprivate.h \
+		/opt/Qt/5.5/gcc_64/include/QtQml/qtqmlglobal.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qvariant.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qmap.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qdebug.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qtextstream.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qiodevice.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qlocale.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qvector.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qpoint.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qset.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qcontiguouscache.h \
+		/opt/Qt/5.5/gcc_64/include/QtQml/qqmlparserstatus.h \
+		/opt/Qt/5.5/gcc_64/include/QtQml/qqmlpropertyvaluesource.h \
+		/opt/Qt/5.5/gcc_64/include/QtQml/qqmllist.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qmetaobject.h \
+		/opt/Qt/5.5/gcc_64/include/QtQml/qqmlerror.h \
+		/opt/Qt/5.5/gcc_64/include/QtQml/qjsvalue.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/QJsonValue \
+		/opt/Qt/5.5/gcc_64/include/QtCore/QJsonArray \
+		/opt/Qt/5.5/gcc_64/include/QtCore/qjsonarray.h \
+		/opt/Qt/5.5/gcc_64/include/QtCore/QDebug
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../build/debug/obj/blockinfo.o blockinfo.cpp
 
 ../build/debug/obj/moc_block.o: ../build/debug/moc/moc_block.cpp 

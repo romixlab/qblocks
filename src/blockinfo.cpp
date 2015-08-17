@@ -75,6 +75,17 @@ bool BlockInfoData::readMetaData(const QJsonObject &metaData)
         }
     }
 
+    value = pluginInfo.value("after");
+    if (value.isString()) {
+        after << value.toString();
+    } else {
+        QJsonArray afters = value.toArray();
+        foreach(const QJsonValue &a, afters)
+            if (a.isString())
+                after << a.toString();
+    }
+    category = pluginInfo.value("category").toString();
+
     foreach (const BlockVersion &v, needs) {
         qDebug() << v.name() << v.versionMajor() << v.versionMinor() << v.versionRevision();
     }
@@ -103,6 +114,78 @@ bool BlockInfoData::load()
 
     state = BlockInfo::LOADED;
     return true;
+}
+
+void BlockInfoData::addChildBlock(BlockInfo *blockInfo)
+{
+    //qDebug() << "addChildBlock to" << q->version().name() << blockInfo->version().name() << blockInfo->category() << blockInfo->after();
+    category_t *category_node = categories.value(blockInfo->category(), 0);
+    if (category_node) { // category exists
+        category_node->blocks.append(blockInfo);
+        foreach (QString after, blockInfo->after())
+            if (!category_node->after.contains(after))
+                category_node->after.append(after);
+    } else {
+        category_node = new category_t;
+        category_node->resolved = false;
+        category_node->after = blockInfo->after();
+        category_node->blocks.append(blockInfo);
+        categories.insert(blockInfo->category(), category_node);
+    }
+}
+
+QList<BlockInfo *> BlockInfoData::resolvedChildBlocks()
+{
+    if (!resolved_childs.isEmpty())
+        return resolved_childs;
+
+    QHashIterator<QString, category_t *> it(categories);
+    while (it.hasNext()) { // populate child_categories of each category
+        it.next();
+        category_t *category_node = it.value();
+        foreach(const QString &after, category_node->after) {
+            if (!categories.contains(after)) {
+                qWarning() << "Category" << after << "required by following Blocks, doesn't exist.";
+                qWarning() << "Try to disable one of these Blocks, so that the rest can be loaded.";
+                QDebug dbg = qWarning();
+                foreach (BlockInfo *blockInfo, category_node->blocks)
+                    dbg << blockInfo->version().name();
+            } else {
+                categories[after]->child_categories.append(it.key());
+            }
+        }
+    }
+
+    it.toFront();
+    while (it.hasNext()) { // recursively resolve dependencies
+        it.next();
+        resolve_category(it.key());
+    }
+
+//    qDebug() << "--------------";
+//    qDebug() << "resolved_childs of" << q->version().name();
+//    foreach (BlockInfo *blockInfo, resolved_childs)
+//        qDebug() << blockInfo->version().name();
+//    qDebug() << "--------------";
+
+    return resolved_childs;
+}
+
+void BlockInfoData::resolve_category(const QString &category)
+{
+    category_t *category_node = categories[category];
+    foreach (const QString &after, category_node->after)
+        if (!categories[after]->resolved)
+            resolve_category(after);
+
+    category_node->resolved = true;
+    foreach (BlockInfo *child, category_node->blocks)
+        if (!resolved_childs.contains(child)) // only unique
+            resolved_childs.append(child);
+
+    foreach (const QString &child, category_node->child_categories)
+        if (!categories[child]->resolved)
+            resolve_category(child);
 }
 
 BlockVersion::BlockVersion()
@@ -208,6 +291,7 @@ bool BlockInfo::resolveDependencies(const QList<BlockInfo *> &blocks)
             return false;
         }
         d->dependency_blocks.push_back(found);
+        found->d->addChildBlock(this);
     }
 
     return true;
@@ -226,6 +310,16 @@ BlockInfo::State BlockInfo::state() const
 BlockVersion BlockInfo::version() const
 {
     return d->provides;
+}
+
+QStringList BlockInfo::after() const
+{
+    return d->after;
+}
+
+QString BlockInfo::category() const
+{
+    return d->category;
 }
 
 

@@ -11,8 +11,8 @@
 
 class Blocks::ApplicationData {
 public:
-    void checkAndAppendToLoadQueue(BlockInfo *blockInfo);
-    QList<BlockInfo *> load_queue;
+    void load_blocks(const QList<BlockInfo *> &blocks);
+    BlockInfo * root_block;
     QList<BlockInfo *> blocks;
 
     QHash<QString, QObject *> objects;
@@ -23,31 +23,15 @@ public:
 using namespace Blocks;
 
 
-void ApplicationData::checkAndAppendToLoadQueue(BlockInfo *blockInfo)
+void ApplicationData::load_blocks(const QList<BlockInfo *> &blocks)
 {
-    qDebug() << "Check and append to queue" << blockInfo->version().name();
-    if (load_queue.contains(blockInfo))
-        return;
-    foreach (BlockInfo *need, blockInfo->needs()) {
-        if (need->state() != BlockInfo::RESOLVED) {
-            qWarning() << "Dependency of ... not resolved";
-            return;
+    foreach (BlockInfo *blockInfo, blocks) {
+        if (blockInfo->d->load()) {
+            qDebug() << blockInfo->version().name() << "loaded, loading childs...";
+            load_blocks(blockInfo->d->resolvedChildBlocks());
+            this->blocks.append(blockInfo);
         }
-        if (!load_queue.contains(need))
-            checkAndAppendToLoadQueue(need);
     }
-    if (blockInfo->state() != BlockInfo::RESOLVED) {
-        qWarning() << "Not resolved ...";
-        return;
-    }
-    // search for last parent of this block in queue and insert after
-    int lastParentIdx = 0;
-    foreach (BlockInfo *parent, blockInfo->needs()) {
-        int idx = load_queue.indexOf(parent);
-        if (idx > lastParentIdx)
-            lastParentIdx = idx;
-    }
-    load_queue.insert(lastParentIdx + 1, blockInfo);
 }
 
 Application *Application::self = 0;
@@ -100,24 +84,30 @@ void Application::loadBlocks(const QString &path)
 
     foreach(BlockInfo *blockInfo, blocks)
         blockInfo->resolveDependencies(blocks);
+    d->root_block = new BlockInfo;
     foreach(BlockInfo *blockInfo, blocks)
-        d->checkAndAppendToLoadQueue(blockInfo);
-    foreach(BlockInfo *blockInfo, d->load_queue) {
-        qDebug() << "Loading" << blockInfo->version().name();
-        if (blockInfo->d->load())
-            d->blocks.append(blockInfo);
-    }
-    d->load_queue.clear();
+        if (blockInfo->d->dependency_blocks.length() == 0)
+            d->root_block->d->addChildBlock(blockInfo);
+    d->load_blocks(d->root_block->d->resolvedChildBlocks());
 }
 
 QObject *Application::object(const QString &path) const
 {
-    foreach (BlockInfo *blockInfo, d->blocks) {
-        QObject *object = blockInfo->block()->object(path);
-        if (object)
-            return object;
+    BlockInfo *currentBlock = d->root_block;
+    QStringList pathSplitted = path.split(".");
+    for (int i = 0; i < pathSplitted.length() - 1; ++i) {
+        QString blockName = pathSplitted[i];
+        foreach (BlockInfo *childBlock, currentBlock->d->resolvedChildBlocks()) {
+            if (childBlock->version().name() == blockName) {
+                currentBlock = childBlock;
+                break;
+            }
+            qDebug() << "Application::object" << path << "not found:" << blockName;
+            return 0;
+        }
     }
-    return 0;
+
+    return currentBlock->block()->object(pathSplitted.last());
 }
 
 QList<QObject *> Application::objects() const
@@ -137,5 +127,7 @@ QQmlEngine *Application::qmlEngine() const
 {
     return d->engine;
 }
+
+
 
 

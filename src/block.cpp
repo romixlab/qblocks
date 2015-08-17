@@ -1,5 +1,6 @@
 #include "block.h"
 #include "block_p.h"
+#include "blockinfo.h"
 #include "blocksapplication.h"
 #include <QQmlContext>
 
@@ -68,7 +69,10 @@ void Block::addObject(const QString &name, QObject *object)
 
 QObject *Block::object(const QString &name) const
 {
-    return d->objects.value(name, 0);
+    if (d->objects.contains(name))
+        return d->objects[name];
+    qWarning() << "Block" << info()->version().name() << "object" << name << "not found";
+    return 0;
 }
 
 QList<QObject *> Block::objects() const

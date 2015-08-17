@@ -25,6 +25,7 @@ private:
 };
 
 class Application;
+class ApplicationData;
 class Block;
 class BlockInfoData;
 class BLOCKSSHARED_EXPORT BlockInfo
@@ -40,8 +41,11 @@ public:
     QList<BlockInfo *> needs() const;
     State state() const;
     BlockVersion version() const;
+    QStringList after() const;
+    QString category() const;
 
     friend class Application;
+    friend class ApplicationData;
 private:
     BlockInfoData *d;
 };

@@ -2,6 +2,8 @@
 #define BLOCKINFO_P_H
 
 #include "blockinfo.h"
+
+#include <QStringList>
 #include <QPluginLoader>
 #include <QJsonObject>
 

@@ -97,14 +97,18 @@ QObject *Application::object(const QString &path) const
     QStringList pathSplitted = path.split(".");
     for (int i = 0; i < pathSplitted.length() - 1; ++i) {
         QString blockName = pathSplitted[i];
+        BlockInfo *nextBlock = 0;
         foreach (BlockInfo *childBlock, currentBlock->d->resolvedChildBlocks()) {
             if (childBlock->version().name() == blockName) {
-                currentBlock = childBlock;
+                nextBlock = childBlock;
                 break;
-            }
+            }  
+        }
+        if (!nextBlock) {
             qDebug() << "Application::object" << path << "not found:" << blockName;
             return 0;
         }
+        currentBlock = nextBlock;
     }
 
     return currentBlock->block()->object(pathSplitted.last());

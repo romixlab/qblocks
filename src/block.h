@@ -17,7 +17,7 @@ class BLOCKSSHARED_EXPORT Block : public QObject
     Q_OBJECT
 public:
     Block(QObject *parent = 0);
-    ~Block();
+    virtual ~Block();
 
     /**
      * @brief plugin called after all of this Block dependencies are plugged in (plugin called).

@@ -10,10 +10,13 @@ using namespace Blocks;
 
 Block::Block(QObject *parent) :
     QObject(parent), d(new BlockData)
-{ }
+{
+    d->objects.insert("self", this);
+}
 
 Block::~Block()
 {
+    qDebug() << "DESTRUCTING BLOCK!!!" << d->info->version().name();
     delete d;
 }
 

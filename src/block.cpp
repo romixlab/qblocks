@@ -68,6 +68,10 @@ void Block::addObject(const QString &name, QObject *object)
     }
     d->objects.insert(name, object);
     d->objects_list.push_back(object);
+    if (object->parent() == 0) {
+        object->setParent(this);
+        qDebug() << "Adding parent to" << object;
+    }
 }
 
 QObject *Block::object(const QString &name) const

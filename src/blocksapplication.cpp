@@ -28,6 +28,7 @@ void ApplicationData::load_blocks(const QList<BlockInfo *> &blocks)
     foreach (BlockInfo *blockInfo, blocks) {
         if (blockInfo->d->load()) {
             qDebug() << blockInfo->version().name() << "loaded, loading childs...";
+            blockInfo->block()->setParent(Application::self);
             load_blocks(blockInfo->d->resolvedChildBlocks());
             this->blocks.append(blockInfo);
         }
@@ -111,7 +112,12 @@ QObject *Application::object(const QString &path) const
         currentBlock = nextBlock;
     }
 
-    return currentBlock->block()->object(pathSplitted.last());
+    QObject *object = currentBlock->block()->object(pathSplitted.last());
+    if (object->parent() == 0) {
+        //object->setParent(this);
+        qDebug() << object << "was without parent";
+    }
+    return object;
 }
 
 QList<QObject *> Application::objects() const

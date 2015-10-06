@@ -53,6 +53,7 @@ public:
 private:
     static Application *self;
     ApplicationData *d;
+    friend class ApplicationData;
 };
 
 } // Blocks

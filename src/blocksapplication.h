@@ -2,6 +2,7 @@
 #define BLOCKSAPPLICATION_H
 
 #include <QApplication>
+#include "blocks_global.h"
 
 class QQmlEngine;
 
@@ -9,7 +10,7 @@ namespace Blocks {
 
 class Block;
 class ApplicationData;
-class Application : public QApplication
+class BLOCKSSHARED_EXPORT Application : public QApplication
 {
     Q_OBJECT
 public:
